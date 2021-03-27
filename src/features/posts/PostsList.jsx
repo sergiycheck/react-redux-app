@@ -1,5 +1,7 @@
 import React from 'react';
 import {useSelector} from 'react-redux';
+import {Link} from 'react-router-dom';
+
 
 export const PostsList = ()=>{
 
@@ -11,6 +13,13 @@ export const PostsList = ()=>{
 			<p className="post-content">
 				{post.content.substring(0,100)}
 			</p>
+			<Link to={`/posts/${post.id}`}  className="button muted-button">
+				view post
+			</Link>
+			<Link to={`/editPost/${post.id}`}  className="button muted-button">
+				edit post
+			</Link>
+
 		</article>
 
 	));

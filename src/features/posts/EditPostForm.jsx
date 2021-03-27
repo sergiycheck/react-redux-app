@@ -1,15 +1,21 @@
 import React, {useState} from 'react';
 
-import {useDispatch} from 'react-redux';
+import {useDispatch,useSelector} from 'react-redux';
 
-import {postAdded} from './postsSlice';
+import {postUpdated} from './postsSlice';
 
-export const AddPostForm = ()=>{
+import {useHistory} from 'react-router-dom';
 
-	const [title,setTitle] = useState('');
-	const [content,setContent] = useState('');
+export const EditPostForm = ({match})=>{
+	const { postId } = match.params
 
+	const posts = useSelector(state=>state.posts);
+	const post = posts.find(post=>post.id===postId);
+
+	const [title,setTitle] = useState(post.title);
+	const [content,setContent] = useState(post.content);
 	const dispatch = useDispatch();
+	const history  = useHistory();
 
 	const onTitleChanged = (event)=>{
 		setTitle(event.target.value);
@@ -20,16 +26,22 @@ export const AddPostForm = ()=>{
 
 	const savePostClicked=()=>{
 		if(title&&content){
-			dispatch(postAdded(title,content));
+			dispatch(postUpdated({
+				id:postId,
+				title:title,
+				content:content
+			}));
 			setTitle('');
 			setContent('');
+			//redirect to singlePost page
+			history.push(`/posts/${postId}`)
 		}
 
 	}
 
   return (
     <section>
-      <h2>Add a New Post</h2>
+      <h2>Edit post</h2>
       <form>
         <label htmlFor="postTitle">Post Title:</label>
         <input
