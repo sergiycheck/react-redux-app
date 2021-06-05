@@ -1,17 +1,68 @@
-import React from 'react';
-import {useSelector} from 'react-redux';
+import React,{useEffect} from 'react';
+import {useSelector,useDispatch} from 'react-redux';
 import {Link} from 'react-router-dom';
 import { PostAuthor } from "./PostAuthor";
 import {TimeAgo} from './TimeAgo';
 import { ReactionButton } from "./ReactionButton";
 
+import {selectAllPosts,fetchPosts} from './postsSlice';
+import {StatusData} from '../ApiRoutes'
+
 export const PostsList = ()=>{
+	const dispatch = useDispatch();
+	const postsStatus = useSelector(state=>state.posts.status);
+	const posts = useSelector(selectAllPosts);
+	const error = (useSelector(state=>state.posts.error));
 
-	const posts = useSelector(state=>state.posts);
-	const orderedPosts = posts.slice().sort((a,b)=>b.date.localeCompare(a.date));
+	useEffect(()=>{
+		if(postsStatus===StatusData.idle){
+			dispatch(fetchPosts());
+		}
+	},[postsStatus,dispatch])//run on value of passed array change
 
-	const renderPosts = orderedPosts.map(post=>(
-		<article className="post-excerpt" key={post.id}>
+
+	let content;
+	if(postsStatus===StatusData.loading){
+		content = <Loader></Loader>;
+	}else if(postsStatus === StatusData.succeeded){
+
+		const orderedPosts = posts.slice()
+		.sort((a,b)=>b.date.localeCompare(a.date));
+
+		content = orderedPosts.map(post=>(
+			<PostExcerpt key={post.id} post={post}></PostExcerpt>
+		));
+
+	}else if(postsStatus===StatusData.failed){
+		content = <div>{error}</div>
+	}
+
+
+
+	
+	return(	
+		<section className="posts-list">
+			<h3>Posts</h3>
+			{content}
+		</section >
+		
+
+	)
+
+}
+
+export const Loader=()=>{
+	return(
+		<div className="loader">
+			Loading...
+		</div>
+	)
+}
+
+
+export const PostExcerpt = ({post})=>{
+	return (
+		<article className="post-excerpt">
 			<div className="d-flex justify-content-between">
 				<h3>{post.title}</h3>
 				<TimeAgo timeStamp={post.date}></TimeAgo>
@@ -27,21 +78,11 @@ export const PostsList = ()=>{
 				edit post
 			</Link>
 			<div className="d-flex justify-content-between">
-				<PostAuthor userId={post.userId} ></PostAuthor>
+				<PostAuthor userId={post.user} ></PostAuthor>
 				
 				<ReactionButton post={post}></ReactionButton>
 			</div>
 			
 		</article>
-
-	));
-	return(
-		<section className="posts-list">
-			<h3>Posts</h3>
-			{renderPosts}
-		</section >
-		
-
 	)
-
 }

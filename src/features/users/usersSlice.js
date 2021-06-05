@@ -1,22 +1,51 @@
-import { createSlice } from "@reduxjs/toolkit";
-import { nanoid } from '@reduxjs/toolkit';
 
-const initialState = [
-	{id:nanoid(),name:'Stephanie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/5.jpg"},
-	{id:nanoid(),name:'Julie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/6.jpg"},
-	{id:nanoid(),name:'Terrence ',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/7.jpg"},
-	{id:nanoid(),name:'Bradley ',isOnline:false,img:"https://randomuser.me/api/portraits/med/men/5.jpg"},
-	{id:nanoid(),name:'Regina ',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/8.jpg"},
-	{id:nanoid(),name:'Dana ',isOnline:false,img:"https://randomuser.me/api/portraits/med/women/9.jpg"},
-];
+import {
+	createSlice, 
+	nanoid,
+	createAsyncThunk } from '@reduxjs/toolkit';
+
+import { client } from '../../api/client';
+
+import {usersName,usersRoute,StatusData} from '../ApiRoutes';
+
+
+
+const initialState = {
+	userItems:[],
+	status:StatusData.idle,
+	error:null
+}
+export const fetchUsers = 
+	createAsyncThunk(`${usersName}/fetchUsers`,async()=>{
+		const response = await client.get(usersRoute);
+		console.log('got response',response);
+		return response.users;
+})
+
+
 
 const usersSlice = createSlice({
 	name:'users',
 	initialState,
 	reducers:{
 
+	},
+	extraReducers:{
+		[fetchUsers.fulfilled]: (state,action)=>{
+			state.status = StatusData.succeeded;
+			state.userItems = state.userItems.concat(action.payload);
+			
+			console.log('state.userItems',state.userItems);
+		}
 	}
 
 });
 
 export default usersSlice.reducer;
+
+export const selectAllUsers = (state) => state.users.userItems;
+
+
+
+
+

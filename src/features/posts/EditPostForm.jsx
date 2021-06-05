@@ -2,15 +2,17 @@ import React, {useState} from 'react';
 
 import {useDispatch,useSelector} from 'react-redux';
 
-import {postUpdated} from './postsSlice';
+import {postUpdated,selectPostById} from './postsSlice';
 
 import {useHistory} from 'react-router-dom';
 
 export const EditPostForm = ({match})=>{
 	const { postId } = match.params
 
-	const posts = useSelector(state=>state.posts);
-	const post = posts.find(post=>post.id===postId);
+	//state field contains all the data, useSelector when 
+//code is repeating
+
+	const post = useSelector(state=>selectPostById(state,postId));
 
 	const [title,setTitle] = useState(post.title);
 	const [content,setContent] = useState(post.content);

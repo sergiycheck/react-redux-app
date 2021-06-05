@@ -4,7 +4,10 @@ import { PostAuthor } from "./PostAuthor";
 import {TimeAgo} from './TimeAgo';
 
 import {useDispatch} from 'react-redux';
-import {postDeleted} from './postsSlice';
+
+import {
+	postDeleted,
+	selectPostById} from './postsSlice';
 
 import { ReactionButton } from "./ReactionButton";
 import {useHistory} from 'react-router-dom';
@@ -13,10 +16,10 @@ export const SinglePost = ({ match })=>{
 	//for react router
 	const { postId } = match.params
 	const dispatch = useDispatch();
-	const posts = useSelector(state=>state.posts);
+
 	const history  = useHistory();
 
-	const post = posts.find(post=>post.id===postId);
+	const post = useSelector(state=>selectPostById(state,postId));
 
 	const deletePost=()=>{
 		if(post && post.id){
@@ -52,7 +55,7 @@ export const SinglePost = ({ match })=>{
 				<p className="post-content">{post.content}</p>
 
 				<div className="d-flex justify-content-between">
-					<PostAuthor userId={post.userId} ></PostAuthor>
+					<PostAuthor userId={post.user} ></PostAuthor>
 					
 					<ReactionButton post={post}></ReactionButton>
 				</div>

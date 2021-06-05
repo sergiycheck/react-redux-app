@@ -1,3 +1,6 @@
+
+//"miragejs": "^0.1.35",
+
 import {
   Server,
   Model,
@@ -14,6 +17,7 @@ import faker from 'faker'
 import { sentence, paragraph, article, setRandom } from 'txtgen'
 import { parseISO } from 'date-fns'
 import seedrandom from 'seedrandom'
+import { client } from './client'
 
 const IdSerializer = RestSerializer.extend({
   serializeIds: 'always',
@@ -23,7 +27,19 @@ const IdSerializer = RestSerializer.extend({
 // a consistent set of users / entries each time the page loads.
 // This can be reset by deleting this localStorage value,
 // or turned off by setting `useSeededRNG` to false.
-let useSeededRNG = true
+
+let usersData = [
+	{id:nanoid(),name:'Stephanie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/5.jpg"},
+	{id:nanoid(),name:'Julie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/6.jpg"},
+	{id:nanoid(),name:'Terrence ',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/7.jpg"},
+	{id:nanoid(),name:'Bradley ',isOnline:false,img:"https://randomuser.me/api/portraits/med/men/5.jpg"},
+	{id:nanoid(),name:'Regina ',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/8.jpg"},
+	{id:nanoid(),name:'Dana ',isOnline:false,img:"https://randomuser.me/api/portraits/med/women/9.jpg"},
+];
+
+
+
+let useSeededRNG = false
 
 let rng = seedrandom()
 
@@ -63,16 +79,18 @@ const notificationTemplates = [
 ]
 
 new Server({
+
   routes() {
     this.namespace = 'fakeApi'
-    //this.timing = 2000
+    
+    // this.timing = 2000
 
     this.resource('users')
     this.resource('posts')
     this.resource('comments')
 
-    const server = this
-
+    const server = this;
+    
     this.post('/posts', function (schema, req) {
       const data = this.normalizedRequestAttrs()
       data.date = new Date().toISOString()
@@ -94,6 +112,8 @@ new Server({
       const post = schema.posts.find(req.params.postId)
       return post.comments
     })
+
+    
 
     this.get('/notifications', (schema, req) => {
       const numNotifications = getRandomInt(1, 5)
@@ -127,6 +147,8 @@ new Server({
       return { notifications }
     })
   },
+
+
   models: {
     user: Model.extend({
       posts: hasMany(),
@@ -209,6 +231,13 @@ new Server({
     comment: IdSerializer,
   },
   seeds(server) {
-    server.createList('user', 3)
+    server.createList('user', 3);
+    server.create('user',{img:usersData[0].img})
+    server.create('user',{img:usersData[1].img})
+    server.create('user',{img:usersData[2].img})
+    server.create('user',{img:usersData[3].img})
+    server.create('user',{img:usersData[4].img})
+    server.create('user',{img:usersData[5].img})
   },
 })
+
