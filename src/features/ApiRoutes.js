@@ -22,3 +22,9 @@ export const allUsersRoute =`/${usersName}`;
 export const singleUserPageRoute = `${allUsersRoute}/:userId`;
 
 export const usersRoute = `${apiName}/${usersName}`;
+
+export const notificationsName = 'notifications';
+export const notificationsRoute = `/${notificationsName}`;
+export const notificationsApiRoute = `/${apiName}/${notificationsName}`;
+
+export const notificationPrefix = `${notificationsName}/fetchNotifications`

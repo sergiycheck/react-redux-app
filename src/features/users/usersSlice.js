@@ -10,11 +10,7 @@ import {usersName,usersRoute,StatusData} from '../ApiRoutes';
 
 
 
-const initialState = {
-	userItems:[],
-	status:StatusData.idle,
-	error:null
-}
+
 export const fetchUsers = 
 	createAsyncThunk(`${usersName}/fetchUsers`,async()=>{
 		const response = await client.get(usersRoute);
@@ -22,7 +18,11 @@ export const fetchUsers =
 		return response.users;
 })
 
-
+const initialState = {
+	userItems:[],
+	status:StatusData.idle,
+	error:null
+}
 
 const usersSlice = createSlice({
 	name:'users',
