@@ -10,5 +10,9 @@ const apiName = 'fakeApi';
 export const postsName = 'posts';
 export const postsRoute = `${apiName}/${postsName}`;
 
+export const getAllPostsPrefix = `${postsName}/fetchPosts`
+export const addPostPrefix= `${postsName}/addNewPost`;
+
+
 export const usersName = 'users';
 export const usersRoute = `${apiName}/${usersName}`;

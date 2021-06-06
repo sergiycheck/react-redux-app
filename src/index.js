@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './api/server';
 import {fetchUsers} from './features/users/usersSlice';
 
+// we need only to fetch the list of users once, when the app starts 
 store.dispatch(fetchUsers())
 
 ReactDOM.render(
