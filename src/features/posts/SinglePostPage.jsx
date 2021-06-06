@@ -13,6 +13,7 @@ import { ReactionButton } from "./ReactionButton";
 import {useHistory} from 'react-router-dom';
 
 export const SinglePost = ({ match })=>{
+	
 	//for react router
 	const { postId } = match.params
 	const dispatch = useDispatch();

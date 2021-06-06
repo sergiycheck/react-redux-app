@@ -11,6 +11,14 @@ import {PostsList} from './features/posts/PostsList'
 import {AddPostForm} from './features/posts/AddPostForm'
 import {SinglePost} from './features/posts/SinglePostPage'
 import {EditPostForm} from './features/posts/EditPostForm'
+import {
+  singlePostRoute,
+  editPostRoute,
+  allUsersRoute,
+  singleUserPageRoute} from '../src/features/ApiRoutes';
+
+import {UsersList} from './features/users/UserList';
+import {SingleUserPage} from './features/users/SingleUserPage';
 
 function App() {
   return (
@@ -42,8 +50,16 @@ function App() {
               </React.Fragment>
             )}
           />
-          <Route exact path="/posts/:postId" component={SinglePost}></Route>
-          <Route exact path="/editPost/:postId" component={EditPostForm}></Route>
+          <Route exact path={singlePostRoute} 
+            component={SinglePost}></Route>
+          <Route exact path={editPostRoute} 
+            component={EditPostForm}></Route>
+          
+          <Route exact path={allUsersRoute} 
+            component={UsersList}></Route>
+          <Route exact path={singleUserPageRoute} 
+            component={SingleUserPage}></Route>
+          
           <Redirect to="/" />
 
         </Switch>

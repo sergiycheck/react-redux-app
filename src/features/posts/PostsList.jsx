@@ -6,7 +6,10 @@ import {TimeAgo} from './TimeAgo';
 import { ReactionButton } from "./ReactionButton";
 
 import {selectAllPosts,fetchPosts} from './postsSlice';
-import {StatusData} from '../ApiRoutes'
+import {StatusData} from '../ApiRoutes';
+import {
+	singlePostRoute,
+	editPostRoute} from '../ApiRoutes';
 
 export const PostsList = ()=>{
 	const dispatch = useDispatch();
@@ -71,10 +74,16 @@ export const PostExcerpt = ({post})=>{
 			<p className="post-content">
 				{post.content.substring(0,100)}
 			</p>
-			<Link to={`/posts/${post.id}`}  className="button muted-button">
+			<Link 
+				// to={`/posts/${post.id}`}  
+				to={singlePostRoute.replace(":postId",`${post.id}`)}
+				className="button muted-button">
 				view post
 			</Link>
-			<Link to={`/editPost/${post.id}`}  className="button muted-button">
+			<Link 
+				// to={`/editPost/${post.id}`} 
+				to={editPostRoute.replace(":postId",`${post.id}`)}
+				className="button muted-button">
 				edit post
 			</Link>
 			<div className="d-flex justify-content-between">
