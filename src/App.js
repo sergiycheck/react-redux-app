@@ -15,10 +15,14 @@ import {
   singlePostRoute,
   editPostRoute,
   allUsersRoute,
-  singleUserPageRoute} from '../src/features/ApiRoutes';
+  singleUserPageRoute,
+  notificationsRoute,
+} from '../src/features/ApiRoutes';
 
 import {UsersList} from './features/users/UserList';
 import {SingleUserPage} from './features/users/SingleUserPage';
+import {NotificationList} from './features/notifications/NotificationList'
+
 
 function App() {
   return (
@@ -59,6 +63,9 @@ function App() {
             component={UsersList}></Route>
           <Route exact path={singleUserPageRoute} 
             component={SingleUserPage}></Route>
+
+          <Route exact path={notificationsRoute} 
+            component={NotificationList}></Route>
           
           <Redirect to="/" />
 

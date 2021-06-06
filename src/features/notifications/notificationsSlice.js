@@ -12,7 +12,7 @@ import {
 } from '../ApiRoutes';
 
 
-const fetchNotifications = createAsyncThunk(
+export const fetchNotifications = createAsyncThunk(
 	notificationPrefix,
 
 	//pass getState inside object
@@ -59,14 +59,25 @@ const initialState = {
 const notificationsSlice = createSlice({
 	name:notificationsName,
 	initialState,
-	reducers:{},
+	reducers:{
+		allNotificationsRead(state,action){
+			state.notificationItems.forEach(notif=>{
+				notif.read = true;
+			})
+		}
+
+	},
 	extraReducers:{
 		//computed property
 		[fetchNotifications.fulfilled]:(state,action)=>{
-
 			console.log(
 				'notificationsSlice extra reducers fetchNotifications.fulfilled state and action', 
 				state, action);
+			
+			// if we read notification it becomes not new
+			state.notificationItems.forEach(notif=>{
+				notif.isNew = !notif.read;
+			})
 
 			state.status = StatusData.succeeded;
 			state.notificationItems = 
@@ -74,7 +85,7 @@ const notificationsSlice = createSlice({
 			
 			//sort newest notifications (mutates the existing array)
 			state.notificationItems.sort((a,b)=>{
-				return b.date.locateCompare(a.date);
+				return b.date.localeCompare(a.date);
 			})
 		}
 	}
@@ -83,8 +94,18 @@ const notificationsSlice = createSlice({
 
 export default notificationsSlice.reducer;
 
+export const {
+	allNotificationsRead
+	} = notificationsSlice.actions;
 export const selectAllNotifications = (state) => {
 
-	console.log('selectAllNotifications state', state);
+	// console.log('selectAllNotifications state', state);
 	return state.notifications.notificationItems
 };
+
+
+//it is possible to dispatch an action and not have any state
+// changes happen at all
+// it is always up to reducers to decide if any 
+// state changes needs to happen or nothing needs to happen
+// This is important (valid) decision for a reducer to make 
