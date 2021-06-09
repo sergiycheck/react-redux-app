@@ -5,16 +5,32 @@ import { PostAuthor } from "./PostAuthor";
 import {TimeAgo} from './TimeAgo';
 import { ReactionButton } from "./ReactionButton";
 
-import {selectAllPosts,fetchPosts} from './postsSlice';
+import {
+	selectAllPosts,
+	fetchPosts,
+	selectPostIds,
+	selectPostById} from './postsSlice';
+
+
 import {StatusData} from '../ApiRoutes';
 import {
 	singlePostRoute,
 	editPostRoute} from '../ApiRoutes';
 
+
+
+//Now, if we try clicking a reaction button on one of the posts while capturing 
+//a React component performance profile, 
+//we should see that only that one component re-rendered:
+
 export const PostsList = ()=>{
+
+
 	const dispatch = useDispatch();
+	
+	const orderedPostIds = useSelector(state=>selectPostIds(state));
+
 	const postsStatus = useSelector(state=>state.posts.status);
-	const posts = useSelector(selectAllPosts);
 	const error = (useSelector(state=>state.posts.error));
 
 	useEffect(()=>{
@@ -29,11 +45,11 @@ export const PostsList = ()=>{
 		content = <Loader></Loader>;
 	}else if(postsStatus === StatusData.succeeded){
 
-		const orderedPosts = posts.slice()
-		.sort((a,b)=>b.date.localeCompare(a.date));
+		// const orderedPosts = posts.slice()
+		// .sort((a,b)=>b.date.localeCompare(a.date));
 
-		content = orderedPosts.map(post=>(
-			<PostExcerpt key={post.id} post={post}></PostExcerpt>
+		content = orderedPostIds.map(postId=>(
+			<PostExcerpt key={postId} postId={postId}></PostExcerpt>
 		));
 
 	}else if(postsStatus===StatusData.failed){
@@ -63,7 +79,9 @@ export const Loader=()=>{
 }
 
 
-export let PostExcerpt = ({post})=>{
+export let PostExcerpt = ({postId})=>{
+	const post = useSelector(state=>selectPostById(state,postId))
+
 	return (
 		<article className="post-excerpt">
 			<div className="d-flex justify-content-between">
@@ -95,7 +113,8 @@ export let PostExcerpt = ({post})=>{
 		</article>
 	)
 }
-PostExcerpt = React.memo(PostExcerpt);// re-renders only selected post
+//PostExcerpt = React.memo(PostExcerpt);// re-renders only selected post
+
 //in order to re-render only post that dispatches addReaction is to 
 // have our reducer keep a separate array of IDs for all the posts, 
 //and only modify that array when posts are added or removed 

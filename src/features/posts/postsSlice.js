@@ -46,17 +46,17 @@ import
 // ]
 
 
-
+//sorts our posts
 const postsAdapter = createEntityAdapter({
 	sortComparer:(a,b)=>b.date.localeCompare(a.date)
 })
 
-
-const initialState = {
-	postItems:[],
+// getInitialState returns an empty {ids:[], entities:{}} normalized state object
+const initialState = postsAdapter.getInitialState({
+	//
 	status:StatusData.idle,
 	error:null
-}
+})
 
 
 //redux toolkit's createAsyncThunk API generates thunks
@@ -80,6 +80,7 @@ export const addNewPost = createAsyncThunk(
 		return response.post;
 })
 
+//posts are being kept in a lookup table state.entities
 const postsSlice = createSlice({
 	name:'posts', // array of postItems
 	initialState,
@@ -117,7 +118,9 @@ const postsSlice = createSlice({
 		//createSlice lets us write "mutating" logic in our reducers.
 		reactionAdded(state,action){
 			const {postId,reaction} = action.payload;
-			const existingPost = state.postItems.find(post=>post.id===postId);
+			//
+			const existingPost = state.entities[postId];
+
 			if(existingPost){
 				existingPost.reactions[reaction]++;
 			}
@@ -125,14 +128,16 @@ const postsSlice = createSlice({
 
 		postDeleted(state,action){
 			const {postId} = action.payload;
-			const existingPost = state.postItems.find(post=>post.id===postId);
+			//
+			const existingPost = state.entities[postId]
 			if(existingPost){
 				state.postItems.pop(existingPost);
 			}
 		},
 		postUpdated(state,action){
 			const {id,title,content} = action.payload;
-			const existingPost = state.postItems.find(post=>post.id===id);
+			//
+			const existingPost = state.entities[id]
 			if(existingPost){
 				existingPost.title = title;
 				existingPost.content = content;
@@ -153,14 +158,21 @@ const postsSlice = createSlice({
 		},
 		[fetchPosts.fulfilled]:(state,action)=>{
 			state.status = StatusData.succeeded;
-			state.postItems = state.postItems.concat(action.payload)
+			// state.postItems = state.postItems.concat(action.payload)
+
+			//Use the `upsertMany` reducer as a mutating update utility
+			//upsertMany merges action.payload posts on id if the same posts
+			// already existing in state
+			postsAdapter.upsertMany(state,action.payload);
 		},
 		[fetchPosts.rejected]:(state,action)=>{
 			state.status = StatusData.failed;
 			state.error = action.error.message;
 		},
+
 		[addNewPost.fulfilled]:(state,action)=>{
-			state.postItems.push(action.payload);
+			// state.postItems.push(action.payload);
+			postsAdapter.addOne(action.payload);
 		}
 	}
 
@@ -176,9 +188,26 @@ export default postsSlice.reducer;
 //Note that the state parameter for these selector 
 //functions is the root Redux state object
 
-export const selectAllPosts = (state) => state.posts.postItems;
-export const selectPostById = (state,postId)=>
-	state.posts.postItems.find(post=>post.id===postId);
+// export const selectAllPosts = (state) => state.posts.postItems;
+// export const selectPostById = (state,postId)=>
+// 	state.posts.postItems.find(post=>post.id===postId);
+
+
+
+//Export the customized selectors for this adapter 
+//using `getSelectors`
+export const {
+	
+	selectAll:selectAllPosts,
+	selectById: selectPostById,
+	selectIds: selectPostIds
+
+	//high order function ?
+	//Pass in a selector that returns the posts slice of state
+	//pass state.posts in order to find posts in Redux state
+} = postsAdapter.getSelectors(state=>state.posts)
+
+
 
 	// createSelector takes one input selector func
 	// plus an output selector func
