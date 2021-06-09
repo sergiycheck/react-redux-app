@@ -1,3 +1,7 @@
 [] https://redux.js.org/tutorials/essentials/part-5-async-logic#!
 
 [] Test data
+
+[] bug all the postExcerpts render on addReaction
+	when a parent component renders 
+		react re-render recursively all child components 

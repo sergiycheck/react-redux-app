@@ -63,7 +63,7 @@ export const Loader=()=>{
 }
 
 
-export const PostExcerpt = ({post})=>{
+export let PostExcerpt = ({post})=>{
 	return (
 		<article className="post-excerpt">
 			<div className="d-flex justify-content-between">
@@ -95,3 +95,10 @@ export const PostExcerpt = ({post})=>{
 		</article>
 	)
 }
+PostExcerpt = React.memo(PostExcerpt);// re-renders only selected post
+//in order to re-render only post that dispatches addReaction is to 
+// have our reducer keep a separate array of IDs for all the posts, 
+//and only modify that array when posts are added or removed 
+//and do the same rewrite of PostsList and PostExcerpt 
+// This way PostList only  needs to re-render when the ids in array changes
+//react toolkit has a createEntityAdapter func to do that

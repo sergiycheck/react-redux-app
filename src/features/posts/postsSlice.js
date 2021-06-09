@@ -3,7 +3,8 @@ import {
 	createSlice, 
 	nanoid,
 	createAsyncThunk, 
-	createSelector,	 
+	createSelector,
+	createEntityAdapter	 
 } from '@reduxjs/toolkit';
 
 import {sub} from 'date-fns'; 
@@ -46,11 +47,17 @@ import
 
 
 
+const postsAdapter = createEntityAdapter({
+	sortComparer:(a,b)=>b.date.localeCompare(a.date)
+})
+
+
 const initialState = {
 	postItems:[],
 	status:StatusData.idle,
 	error:null
 }
+
 
 //redux toolkit's createAsyncThunk API generates thunks
 //that automaticaly dispatches those start/success/failure actions
