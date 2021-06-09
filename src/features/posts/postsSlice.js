@@ -2,7 +2,10 @@
 import {
 	createSlice, 
 	nanoid,
-	createAsyncThunk } from '@reduxjs/toolkit';
+	createAsyncThunk, 
+	createSelector,	 
+} from '@reduxjs/toolkit';
+
 import {sub} from 'date-fns'; 
 import { client } from '../../api/client';
 
@@ -170,6 +173,25 @@ export const selectAllPosts = (state) => state.posts.postItems;
 export const selectPostById = (state,postId)=>
 	state.posts.postItems.find(post=>post.id===postId);
 
+	// createSelector takes one input selector func
+	// plus an output selector func
+	// first input selector returns userId
+	// second output selector return filtered array of posts
+	//if we call selectPostsByUserMultiple times with
+	//the same state, and userId it will only re-run
+	//output selector  
+export const selectPostsByUser = createSelector(
+	[selectAllPosts,(state,userId)=>{
+		console.log('calling selectAllPosts input selector. UserId: ',userId);
+		return userId
+	}],
+	(posts,userId)=>{
+		console.log('second output selector. UserId: ', userId)
+		return posts.filter(post=>post.user == userId)
+	}
+)
+
+
 
 //YOu can write reusable 'selector' function to encapsulate reading values from Redux state
 	//selectors are funcs that get Redux state as arg and return some data
@@ -189,3 +211,5 @@ export const selectPostById = (state,postId)=>
 	//   and update the state base on those actions
 	// - Action creators can be use to automatically fill in the keys of extraReducers obj so the 
 	//   slice knows what action to listen for
+
+
