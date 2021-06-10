@@ -9,10 +9,12 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './api/server';
 import {fetchUsers} from './features/users/usersSlice';
 
-import {selectPostsByUser,reactionAdded, addNewPost} from './features/posts/postsSlice'
+import {selectPostsByUser,reactionAdded, addNewPost,fetchPosts} from './features/posts/postsSlice'
 
 // we need only to fetch the list of users once, when the app starts 
-store.dispatch(fetchUsers())
+store.dispatch(fetchUsers());
+//custom fetch posts
+store.dispatch(fetchPosts());
 
 ReactDOM.render(
   <React.StrictMode>

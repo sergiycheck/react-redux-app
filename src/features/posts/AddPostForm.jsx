@@ -8,12 +8,15 @@ import {
 } from './postsSlice';
 import {unwrapResult} from '@reduxjs/toolkit';
 import {StatusData} from '../ApiRoutes';
+import {selectAllUsers} from '../users/usersSlice'
 
 
 
 export const AddPostForm = ()=>{
 
-  const users = useSelector(state=>state.users.userItems);
+  // const users = useSelector(state=>state.users.userItems);
+  const users = useSelector(state=>selectAllUsers(state))
+  
 	const dispatch = useDispatch();
 
 	const [title,setTitle] = useState('');

@@ -52,7 +52,7 @@ export const NotificationList = () =>{
 		};
 
 		const notificationClassname = classnames('notification',{
-			new: notif.isNew
+			['new aboba']: notif['isNew']
 		})
 
 		return(

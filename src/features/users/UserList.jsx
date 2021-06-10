@@ -7,7 +7,7 @@ import {singleUserPageRoute} from '../ApiRoutes';
 
 export const UsersList = () => {
 
-	const users = useSelector(selectAllUsers);
+	const users = useSelector(state=>selectAllUsers(state));
 
 	const renderedUsers = users.map(user=>(
 		<li key={user.id}>

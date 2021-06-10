@@ -30,23 +30,35 @@ export const SingleUserPage = ({match})=>{
 	const allUserPosts = useSelector(state=> selectPostsByUser(state,userId));
 
 
-	
-	return(
-		<section>
-			<h2>{user.name} posts</h2>
-			<ul>
-				{allUserPosts.map(post=>(
-					<li key={post.id}>
-						<Link 
-						// to={`/posts/${post.id}`}
-						to={singlePostRoute.replace(":postId",`${post.id}`)}
-						className={`p-2`} >{post.title}</Link>
-				
-					</li>
-					))}
-			</ul>
-		</section>
-	)
+	if(user){
+		
+		return(
+			<section>
+				<h2>{user.name} posts</h2>
+				<ul>
+					{allUserPosts.map(post=>(
+						<li key={post.id}>
+							<Link 
+							// to={`/posts/${post.id}`}
+							to={singlePostRoute.replace(":postId",`${post.id}`)}
+							className={`p-2`} >{post.title}</Link>
+					
+						</li>
+						))}
+				</ul>
+			</section>
+		)
+
+	}else{
+		return(
+			<section>
+				<div>No user with such id {userId}</div>
+			</section>
+		) 
+		
+	}
+
+
 	
 
 }

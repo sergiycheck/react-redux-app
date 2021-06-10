@@ -70,6 +70,16 @@ export const fetchPosts = createAsyncThunk(
 			return response.posts;
 })
 
+export const fetchPostComments = createAsyncThunk(
+	'post/:id/comments',
+	async(postId)=>{
+		console.log('fetchPostComments postId', postId)
+		const responseComments = await client.get(`${postsRoute}/${postId}/comments`);
+		console.log('got response',responseComments);
+		return responseComments;
+	}
+)
+
 //initialPost { title, content, user: userId }
 export const addNewPost = createAsyncThunk(
 	addPostPrefix,
@@ -131,7 +141,7 @@ const postsSlice = createSlice({
 			//
 			const existingPost = state.entities[postId]
 			if(existingPost){
-				state.postItems.pop(existingPost);
+				state.entities.pop(existingPost);
 			}
 		},
 		postUpdated(state,action){
@@ -218,11 +228,12 @@ export const {
 	//output selector  
 export const selectPostsByUser = createSelector(
 	[selectAllPosts,(state,userId)=>{
-		console.log('calling selectAllPosts input selector. UserId: ',userId);
+		console.log('calling selectPostsByUser input selector. UserId: ',userId);
 		return userId
 	}],
 	(posts,userId)=>{
-		console.log('second output selector. UserId: ', userId)
+		console.log('calling selectPostsByUser second output selector. UserId: ', userId)
+		console.log('posts ',[posts])
 		return posts.filter(post=>post.user == userId)
 	}
 )

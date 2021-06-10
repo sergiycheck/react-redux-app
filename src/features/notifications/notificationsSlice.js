@@ -1,7 +1,10 @@
 import {
 	createSlice, 
 	nanoid,
-	createAsyncThunk } from '@reduxjs/toolkit';
+	createAsyncThunk,
+	createEntityAdapter,	
+} from '@reduxjs/toolkit';
+
 import {sub} from 'date-fns'; 
 import { client } from '../../api/client';
 import {
@@ -51,17 +54,26 @@ export const fetchNotifications = createAsyncThunk(
 	}
 )
 
-const initialState = {
-	notificationItems:[],
+const notificationAdapter = createEntityAdapter({
+	sortComparer:(a,b)=>b.date.localeCompare(a.date)
+})
+
+const initialState = notificationAdapter.getInitialState({
+	//notificationItems:[],
 	status:StatusData.idle,
 	error:null
-}
+})
+
 const notificationsSlice = createSlice({
+
 	name:notificationsName,
 	initialState,
 	reducers:{
 		allNotificationsRead(state,action){
-			state.notificationItems.forEach(notif=>{
+			//console.log('allNotificationsRead dispatched', state.entities)
+			
+			Object.values(state.entities).forEach(notif=>{
+				//console.log('object values state.entities notif ', notif);
 				notif.read = true;
 			})
 		}
@@ -75,18 +87,24 @@ const notificationsSlice = createSlice({
 				state, action);
 			
 			// if we read notification it becomes not new
-			state.notificationItems.forEach(notif=>{
+			// object values returns an array of object property values
+			Object.values(state.entities).forEach(notif=>{
 				notif.isNew = !notif.read;
 			})
 
 			state.status = StatusData.succeeded;
-			state.notificationItems = 
-				state.notificationItems.concat(...action.payload);
+
+			// state.notificationItems = 
+			// 	state.notificationItems.concat(...action.payload);
+
+			notificationAdapter.upsertMany(state,action.payload)
 			
 			//sort newest notifications (mutates the existing array)
-			state.notificationItems.sort((a,b)=>{
-				return b.date.localeCompare(a.date);
-			})
+			// state.notificationItems.sort((a,b)=>{
+			// 	return b.date.localeCompare(a.date);
+			// })
+
+
 		}
 	}
 
@@ -97,11 +115,16 @@ export default notificationsSlice.reducer;
 export const {
 	allNotificationsRead
 	} = notificationsSlice.actions;
-export const selectAllNotifications = (state) => {
 
-	// console.log('selectAllNotifications state', state);
-	return state.notifications.notificationItems
-};
+// export const selectAllNotifications = (state) => {
+
+// 	// console.log('selectAllNotifications state', state);
+// 	return state.notifications.notificationItems
+// };
+
+export const {
+	selectAll:selectAllNotifications
+}=notificationAdapter.getSelectors(state => state.notifications)
 
 
 //it is possible to dispatch an action and not have any state

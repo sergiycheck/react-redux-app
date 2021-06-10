@@ -109,11 +109,11 @@ new Server({
     })
 
     this.get('/posts/:postId/comments', (schema, req) => {
-      const post = schema.posts.find(req.params.postId)
+      const postId = req.params.postId;
+      console.log('server get postId ', postId)
+      const post = schema.posts.find(postId)
       return post.comments
     })
-
-    
 
     this.get('/notifications', (schema, req) => {
       const numNotifications = getRandomInt(1, 5)
@@ -207,7 +207,7 @@ new Server({
         }
       },
       afterCreate(post, server) {
-        //server.createList('comment', 3, { post })
+        server.createList('comment', 3, { post })
       },
 
       user: association(),

@@ -9,7 +9,9 @@ import {
 	selectAllPosts,
 	fetchPosts,
 	selectPostIds,
-	selectPostById} from './postsSlice';
+	selectPostById,
+	fetchPostComments
+} from './postsSlice';
 
 
 import {StatusData} from '../ApiRoutes';
@@ -32,6 +34,7 @@ export const PostsList = ()=>{
 
 	const postsStatus = useSelector(state=>state.posts.status);
 	const error = (useSelector(state=>state.posts.error));
+
 
 	useEffect(()=>{
 		if(postsStatus===StatusData.idle){
@@ -80,7 +83,14 @@ export const Loader=()=>{
 
 
 export let PostExcerpt = ({postId})=>{
+	const dispatch = useDispatch();
 	const post = useSelector(state=>selectPostById(state,postId))
+
+	const getPostComments = async ()=>{
+		await dispatch(fetchPostComments(postId))
+	}
+
+
 
 	return (
 		<article className="post-excerpt">
@@ -98,6 +108,11 @@ export let PostExcerpt = ({postId})=>{
 				className="button muted-button">
 				view post
 			</Link>
+			<button
+				onClick={getPostComments} 
+				className="button muted-button">
+				getPostComments
+			</button>
 			<Link 
 				// to={`/editPost/${post.id}`} 
 				to={editPostRoute.replace(":postId",`${post.id}`)}
