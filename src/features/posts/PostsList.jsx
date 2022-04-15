@@ -1,67 +1,76 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useMemo } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { PostAuthor } from "./PostAuthor";
 import { TimeAgo } from "./TimeAgo";
 import { ReactionButton } from "./ReactionButton";
-
-import {
-  fetchPosts,
-  selectPostIds,
-  selectPostById,
-  fetchPostComments,
-} from "./postsSlice";
-
-import { StatusData } from "../../api/ApiRoutes";
+import { fetchPostComments } from "./postsSlice";
 import { singlePostRoute, editPostRoute } from "../../api/ApiRoutes";
-
-//Now, if we try clicking a reaction button on one of the posts while capturing
-//a React component performance profile,
-//we should see that only that one component re-rendered:
+import { useGetPostsQuery } from "../../api/apiSlice";
+import { Loader } from "./Loader";
+import classnames from "classnames";
 
 export const PostsList = () => {
-  const dispatch = useDispatch();
+  const {
+    data: response,
+    isLoading,
+    isFetching,
+    isSuccess,
+    isError,
+    error,
+    refetch,
+  } = useGetPostsQuery();
 
-  const orderedPostIds = useSelector((state) => selectPostIds(state));
+  const posts = useMemo(() => response?.posts || [], [response]);
 
-  const postsStatus = useSelector((state) => state.posts.status);
-  const error = useSelector((state) => state.posts.error);
-
-  useEffect(() => {
-    if (postsStatus === StatusData.idle) {
-      dispatch(fetchPosts());
-    }
-  }, [postsStatus, dispatch]); //run on value of passed array change
+  const sortedPosts = useMemo(() => {
+    const sortedPosts = posts.slice();
+    sortedPosts.sort((a, b) => b.date.localeCompare(a.date));
+    return sortedPosts;
+  }, [posts]);
 
   let content;
-  if (postsStatus === StatusData.loading) {
+  if (isLoading) {
     content = <Loader></Loader>;
-  } else if (postsStatus === StatusData.succeeded) {
-    content = orderedPostIds.map((postId) => (
-      <PostExcerpt key={postId} postId={postId}></PostExcerpt>
+  } else if (isSuccess) {
+    const renderedPosts = sortedPosts.map((post) => (
+      <PostExcerpt key={post.id} post={post}></PostExcerpt>
     ));
-  } else if (postsStatus === StatusData.failed) {
+
+    const containerClassname = classnames("posts-container", {
+      disabled: isFetching,
+    });
+
+    content = <div className={containerClassname}>{renderedPosts}</div>;
+  } else if (isError) {
     content = <div>{error}</div>;
   }
 
   return (
     <React.Fragment>
-      <h3>Posts</h3>
+      <div className="row">
+        <div className="col-auto">
+          <h3>Posts</h3>
+        </div>
+        <div className="col-auto">
+          <div className="d-flex">
+            <button className="btn btn-primary" onClick={refetch}>
+              refetch posts
+            </button>
+          </div>
+        </div>
+      </div>
+
       {content}
     </React.Fragment>
   );
 };
 
-export const Loader = () => {
-  return <div className="loader">Loading...</div>;
-};
-
-export let PostExcerpt = ({ postId }) => {
+export let PostExcerpt = ({ post }) => {
   const dispatch = useDispatch();
-  const post = useSelector((state) => selectPostById(state, postId));
 
   const getPostComments = async () => {
-    await dispatch(fetchPostComments(postId));
+    await dispatch(fetchPostComments(post.id));
   };
 
   return (

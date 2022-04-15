@@ -1,54 +1,36 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addNewPost } from "./postsSlice";
-import { unwrapResult } from "@reduxjs/toolkit";
-import { StatusData } from "../../api/ApiRoutes";
+import { useSelector } from "react-redux";
 import { selectAllUsers } from "../users/usersSlice";
+import { useAddNewPostMutation } from "../../api/apiSlice";
 
 export const AddPostForm = () => {
-  const users = useSelector((state) => selectAllUsers(state));
-
-  const dispatch = useDispatch();
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [userId, setUserId] = useState("");
-  const [addRequestStatus, setAddRequestStatus] = useState(StatusData.idle);
 
-  const onTitleChanged = (event) => {
-    setTitle(event.target.value);
-  };
-  const onContentChanged = (event) => {
-    setContent(event.target.value);
-  };
+  const [addNewPost, { isLoading }] = useAddNewPostMutation();
+  const users = useSelector((state) => selectAllUsers(state));
+
+  const onTitleChanged = (e) => setTitle(e.target.value);
+  const onContentChanged = (e) => setContent(e.target.value);
   const onAuthorChanged = (e) => setUserId(e.target.value);
 
-  const canSave =
-    Boolean(title) &&
-    Boolean(content) &&
-    Boolean(userId) &&
-    addRequestStatus === StatusData.idle;
+  const canSave = [title, content, userId].every(Boolean) && !isLoading;
 
   const savePostClicked = async () => {
     if (canSave) {
       try {
-        setAddRequestStatus(StatusData.loading);
-
-        const resultOfAddNewPost = await dispatch(
-          addNewPost({ title, content, user: userId })
-        );
-
-        //unwrapResult that will return either the actual action.payload value from a fulfilled action,
-        //or throw an error if it's the rejected action.
-        unwrapResult(resultOfAddNewPost);
+        await addNewPost({
+          title,
+          content,
+          user: userId,
+        }).unwrap();
 
         setTitle("");
         setContent("");
         setUserId("");
       } catch (err) {
         console.error("Failed to save the post", err);
-      } finally {
-        setAddRequestStatus(StatusData.idle);
       }
     }
   };

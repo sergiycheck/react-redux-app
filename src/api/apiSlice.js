@@ -8,6 +8,7 @@ export const apiSlice = createApi({
   // the cache reducer expect to be added at `state.spi` ( already default - this is optional)
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: `/${apiName}` }),
+  tagTypes: ["Post"],
 
   endpoints: (builder) => ({
     getPosts: builder.query({
@@ -16,13 +17,28 @@ export const apiSlice = createApi({
         url: `/${postsName}`,
         method: "GET",
       }),
+      providesTags: ["Post"],
+    }),
+
+    //you can use the same query hook multiple times,
+    // pass it different query parameters, and each result will be cached separately in the Redux store.
+    getPost: builder.query({
+      // the query parameter must be a single value!
+      query: (postId) => `/${postsName}/${postId}`,
+    }),
+
+    addNewPost: builder.mutation({
+      query: (initialPost) => ({
+        url: `/${postsName}`,
+        method: "POST",
+        body: { post: initialPost },
+      }),
+      invalidatesTags: ["Post"],
     }),
     getUsers: builder.query({
-      // the url for the request is '/fakeApi/posts'
       query: () => `/${usersName}`,
     }),
     getNotifications: builder.query({
-      // the url for the request is '/fakeApi/posts'
       query: () => `/${notificationsName}`,
     }),
   }),
@@ -38,5 +54,10 @@ export const apiSlice = createApi({
 
 // the type of the endpoint Query or Mutation
 
-export const { useGetPostsQuery, useGetUsersQuery, useGetNotificationsQuery } =
-  apiSlice;
+export const {
+  useGetPostsQuery,
+  useGetPostQuery,
+  useAddNewPostMutation,
+  useGetUsersQuery,
+  useGetNotificationsQuery,
+} = apiSlice;

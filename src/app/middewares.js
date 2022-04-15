@@ -8,6 +8,7 @@ export const loggerMiddleware = (storeAPI) => (next) => (action) => {
 export const logmMiddleware = (...args) => {
   if (process.env.NODE_ENV === "development") {
     console.log(...args);
+    //
   }
 };
 export const logm = (...args) => {
