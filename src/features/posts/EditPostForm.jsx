@@ -1,38 +1,49 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { postUpdated, selectPostById } from "./postsSlice";
-import { useHistory } from "react-router-dom";
+import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useGetPostQuery, useEditPostMutation } from '../../api/apiSlice';
+import { Loader } from './Loader';
 
 export const EditPostForm = ({ match }) => {
   const { postId } = match.params;
+  const {
+    data: response,
+    isLoading: isSinglePostLoading,
+    isSuccess,
+  } = useGetPostQuery(postId);
 
-  const post = useSelector((state) => selectPostById(state, postId));
+  if (isSinglePostLoading) {
+    return <Loader></Loader>;
+  } else if (isSuccess) {
+    const post = response;
+    if (post) return <EditPost post={post}></EditPost>;
+  }
+
+  return (
+    <section>
+      <h2>post with id {postId} was not found</h2>
+    </section>
+  );
+};
+
+export const EditPost = ({ post }) => {
+  const [updatePost, { isLoading }] = useEditPostMutation();
 
   const [title, setTitle] = useState(post.title);
   const [content, setContent] = useState(post.content);
-  const dispatch = useDispatch();
   const history = useHistory();
 
-  const onTitleChanged = (event) => {
-    setTitle(event.target.value);
-  };
-  const onContentChanged = (event) => {
-    setContent(event.target.value);
-  };
+  const onTitleChanged = (e) => setTitle(e.target.value);
+  const onContentChanged = (e) => setContent(e.target.value);
 
-  const savePostClicked = () => {
+  const savePostClicked = async () => {
     if (title && content) {
-      dispatch(
-        postUpdated({
-          id: postId,
-          title: title,
-          content: content,
-        })
-      );
-      setTitle("");
-      setContent("");
-      //redirect to singlePost page
-      history.push(`/posts/${postId}`);
+      await updatePost({
+        id: post.id,
+        title: title,
+        content: content,
+      });
+
+      history.push(`/posts/${post.id}`);
     }
   };
 
@@ -53,6 +64,7 @@ export const EditPostForm = ({ match }) => {
           id="postContent"
           name="postContent"
           value={content}
+          rows={9}
           onChange={onContentChanged}
         />
         <button onClick={savePostClicked} type="button">

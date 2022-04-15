@@ -1,18 +1,18 @@
-import React, { useMemo } from "react";
-import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
-import { PostAuthor } from "./PostAuthor";
-import { TimeAgo } from "./TimeAgo";
-import { ReactionButton } from "./ReactionButton";
-import { fetchPostComments } from "./postsSlice";
-import { singlePostRoute, editPostRoute } from "../../api/ApiRoutes";
-import { useGetPostsQuery } from "../../api/apiSlice";
-import { Loader } from "./Loader";
-import classnames from "classnames";
+import React, { useMemo } from 'react';
+import { useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom';
+import { PostAuthor } from './PostAuthor';
+import { TimeAgo } from './TimeAgo';
+import { ReactionButton } from './ReactionButton';
+import { fetchPostComments } from './postsSlice';
+import { singlePostRoute, editPostRoute } from '../../api/ApiRoutes';
+import { useGetPostsQuery } from '../../api/apiSlice';
+import { Loader } from './Loader';
+import classnames from 'classnames';
 
 export const PostsList = () => {
   const {
-    data: response,
+    data: posts = [],
     isLoading,
     isFetching,
     isSuccess,
@@ -20,8 +20,6 @@ export const PostsList = () => {
     error,
     refetch,
   } = useGetPostsQuery();
-
-  const posts = useMemo(() => response?.posts || [], [response]);
 
   const sortedPosts = useMemo(() => {
     const sortedPosts = posts.slice();
@@ -37,7 +35,7 @@ export const PostsList = () => {
       <PostExcerpt key={post.id} post={post}></PostExcerpt>
     ));
 
-    const containerClassname = classnames("posts-container", {
+    const containerClassname = classnames('posts-container', {
       disabled: isFetching,
     });
 
@@ -83,7 +81,7 @@ export let PostExcerpt = ({ post }) => {
       <p className="post-content">{post.content.substring(0, 100)}</p>
       <Link
         // to={`/posts/${post.id}`}
-        to={singlePostRoute.replace(":postId", `${post.id}`)}
+        to={singlePostRoute.replace(':postId', `${post.id}`)}
         className="button muted-button"
       >
         view post
@@ -93,7 +91,7 @@ export let PostExcerpt = ({ post }) => {
       </button>
       <Link
         // to={`/editPost/${post.id}`}
-        to={editPostRoute.replace(":postId", `${post.id}`)}
+        to={editPostRoute.replace(':postId', `${post.id}`)}
         className="button muted-button"
       >
         edit post

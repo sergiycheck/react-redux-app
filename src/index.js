@@ -5,17 +5,22 @@ import App from "./App";
 import store from "./app/store";
 import { Provider } from "react-redux";
 import "bootstrap/dist/css/bootstrap.css";
-import { fetchUsers } from "./features/users/usersSlice";
 import "./api/server";
+import { apiSlice } from "./api/apiSlice";
+import { worker } from "./api/server";
 
-// we need only to fetch the list of users once, when the app starts
-store.dispatch(fetchUsers());
+async function main() {
+  await worker.start({ onUnhandledRequest: "bypass" });
+  store.dispatch(apiSlice.endpoints.getUsers.initiate());
 
-ReactDOM.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+  ReactDOM.render(
+    <React.StrictMode>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </React.StrictMode>,
+    document.getElementById("root")
+  );
+}
+
+main();

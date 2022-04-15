@@ -1,9 +1,9 @@
-import React from "react";
-import { PostAuthor } from "./PostAuthor";
-import { TimeAgo } from "./TimeAgo";
-import { ReactionButton } from "./ReactionButton";
-import { Loader } from "./Loader";
-import { useGetPostQuery } from "../../api/apiSlice";
+import React from 'react';
+import { PostAuthor } from './PostAuthor';
+import { TimeAgo } from './TimeAgo';
+import { ReactionButton } from './ReactionButton';
+import { Loader } from './Loader';
+import { useGetPostQuery } from '../../api/apiSlice';
 
 export const SinglePost = ({ match }) => {
   //for react router
@@ -19,7 +19,7 @@ export const SinglePost = ({ match }) => {
   if (isLoading) {
     content = <Loader></Loader>;
   } else if (isSuccess) {
-    const { post } = response;
+    const post = response;
     content = (
       <article className="post">
         <div className="d-flex justify-content-between align-items-center">
