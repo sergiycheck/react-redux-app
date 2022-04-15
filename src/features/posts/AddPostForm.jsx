@@ -24,9 +24,6 @@ export const AddPostForm = ()=>{
 	const [userId,setUserId] = useState('');
   const [addRequestStatus, setAddRequestStatus] = useState(StatusData.idle);
 
-
-
-
 	const onTitleChanged = (event)=>{
 		setTitle(event.target.value);
 	}
@@ -77,7 +74,7 @@ export const AddPostForm = ()=>{
   ));
 
   return (
-    <section>
+    <section className='sticky-sm-top'>
       <h2>Add a New Post</h2>
       <form>
         <label htmlFor="postTitle">Post Title:</label>

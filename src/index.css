@@ -20,6 +20,10 @@ p {
   font-size: 1.1rem;
 }
 
+.App{
+  width: 100%;
+}
+
 /* Navbar */
 
 nav {
@@ -72,6 +76,24 @@ nav a:hover {
   margin-left: 5px;
   position: relative;
   top: -3px;
+}
+
+@media screen and (max-width: 510px) {
+  .navContent {
+    justify-content: center;
+  }
+  .navLinks {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .navLinks> *{
+    margin-top: 5px;
+  }
+}
+
+.navLinks {
+  display: flex;
 }
 
 .badge {
@@ -255,4 +277,14 @@ button.reaction-button {
 
 .notification.new {
   background-color: rgba(29, 161, 242, 0.1);
+}
+
+
+@media (max-width: 768px){
+  .order-sm-max-1 {
+    order: 1 !important;
+  }
+  .order-sm-max-2 {
+    order: 2 !important;
+  }
 }

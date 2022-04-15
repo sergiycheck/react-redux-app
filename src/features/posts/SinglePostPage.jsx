@@ -43,7 +43,7 @@ export const SinglePost = ({ match })=>{
 	return(
 		<section>
 			<article className="post">
-				<div className="d-flex justify-content-between">
+				<div className="d-flex justify-content-between align-items-center">
 					<h3>{post.title}</h3>
 					<TimeAgo timeStamp={post.date}></TimeAgo>
 					<button

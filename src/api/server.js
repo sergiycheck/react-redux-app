@@ -1,4 +1,3 @@
-
 //"miragejs": "^0.1.35",
 
 import {
@@ -17,7 +16,6 @@ import faker from 'faker'
 import { sentence, paragraph, article, setRandom } from 'txtgen'
 import { parseISO } from 'date-fns'
 import seedrandom from 'seedrandom'
-import { client } from './client'
 
 const IdSerializer = RestSerializer.extend({
   serializeIds: 'always',
@@ -29,15 +27,43 @@ const IdSerializer = RestSerializer.extend({
 // or turned off by setting `useSeededRNG` to false.
 
 let usersData = [
-	{id:nanoid(),name:'Stephanie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/5.jpg"},
-	{id:nanoid(),name:'Julie',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/6.jpg"},
-	{id:nanoid(),name:'Terrence ',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/7.jpg"},
-	{id:nanoid(),name:'Bradley ',isOnline:false,img:"https://randomuser.me/api/portraits/med/men/5.jpg"},
-	{id:nanoid(),name:'Regina ',isOnline:true,img:"https://randomuser.me/api/portraits/med/women/8.jpg"},
-	{id:nanoid(),name:'Dana ',isOnline:false,img:"https://randomuser.me/api/portraits/med/women/9.jpg"},
-];
-
-
+  {
+    id: nanoid(),
+    name: 'Stephanie',
+    isOnline: true,
+    img: 'https://randomuser.me/api/portraits/med/women/5.jpg',
+  },
+  {
+    id: nanoid(),
+    name: 'Julie',
+    isOnline: true,
+    img: 'https://randomuser.me/api/portraits/med/women/6.jpg',
+  },
+  {
+    id: nanoid(),
+    name: 'Terrence ',
+    isOnline: true,
+    img: 'https://randomuser.me/api/portraits/med/women/7.jpg',
+  },
+  {
+    id: nanoid(),
+    name: 'Bradley ',
+    isOnline: false,
+    img: 'https://randomuser.me/api/portraits/med/men/5.jpg',
+  },
+  {
+    id: nanoid(),
+    name: 'Regina ',
+    isOnline: true,
+    img: 'https://randomuser.me/api/portraits/med/women/8.jpg',
+  },
+  {
+    id: nanoid(),
+    name: 'Dana ',
+    isOnline: false,
+    img: 'https://randomuser.me/api/portraits/med/women/9.jpg',
+  },
+]
 
 let useSeededRNG = false
 
@@ -79,21 +105,23 @@ const notificationTemplates = [
 ]
 
 new Server({
-
   routes() {
     this.namespace = 'fakeApi'
-    
+
     // this.timing = 2000
 
     this.resource('users')
     this.resource('posts')
     this.resource('comments')
 
-    const server = this;
-    
+    const server = this
+
     this.post('/posts', function (schema, req) {
+      console.log(' Server this.post (/posts) ')
+
       const data = this.normalizedRequestAttrs()
       data.date = new Date().toISOString()
+
       // Work around some odd behavior by Mirage that's causing an extra
       // user entry to be created unexpectedly when we only supply a userId.
       // It really want an entire Model passed in as data.user for some reason.
@@ -109,13 +137,17 @@ new Server({
     })
 
     this.get('/posts/:postId/comments', (schema, req) => {
-      const postId = req.params.postId;
+      console.log(`Server /posts/:postId/comments `)
+
+      const postId = req.params.postId
       console.log('server get postId ', postId)
       const post = schema.posts.find(postId)
       return post.comments
     })
 
     this.get('/notifications', (schema, req) => {
+      console.log(`Server /notifications `)
+
       const numNotifications = getRandomInt(1, 5)
 
       let pastDate
@@ -147,7 +179,6 @@ new Server({
       return { notifications }
     })
   },
-
 
   models: {
     user: Model.extend({
@@ -212,6 +243,7 @@ new Server({
 
       user: association(),
     }),
+
     comment: Factory.extend({
       id() {
         return nanoid()
@@ -231,13 +263,12 @@ new Server({
     comment: IdSerializer,
   },
   seeds(server) {
-    server.createList('user', 3);
-    server.create('user',{img:usersData[0].img})
-    server.create('user',{img:usersData[1].img})
-    server.create('user',{img:usersData[2].img})
-    server.create('user',{img:usersData[3].img})
-    server.create('user',{img:usersData[4].img})
-    server.create('user',{img:usersData[5].img})
+    server.createList('user', 3)
+    server.create('user', { img: usersData[0].img })
+    server.create('user', { img: usersData[1].img })
+    server.create('user', { img: usersData[2].img })
+    server.create('user', { img: usersData[3].img })
+    server.create('user', { img: usersData[4].img })
+    server.create('user', { img: usersData[5].img })
   },
 })
-
