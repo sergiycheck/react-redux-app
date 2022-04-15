@@ -1,18 +1,16 @@
 import {
   createSlice,
-  nanoid,
   createAsyncThunk,
   createEntityAdapter,
-} from '@reduxjs/toolkit'
+} from "@reduxjs/toolkit";
 
-import { sub } from 'date-fns'
-import { client } from '../../api/client'
+import { client } from "../../api/client";
 import {
   notificationsName,
   notificationPrefix,
   notificationsApiRoute,
   StatusData,
-} from '../ApiRoutes'
+} from "../../api/ApiRoutes";
 
 export const fetchNotifications = createAsyncThunk(
   notificationPrefix,
@@ -30,69 +28,52 @@ export const fetchNotifications = createAsyncThunk(
   // action if the thunks receives an error
 
   async (_, { getState }) => {
-    console.log('getState passed as obj', getState)
-    const allNotifications = selectAllNotifications(getState())
-
-    console.log('allNotifications', allNotifications)
-
+    const allNotifications = selectAllNotifications(getState());
     //array destructuring
-    const [latestNotifications] = allNotifications
-
-    console.log('latestNotifications', latestNotifications)
-
-    const latestTimestamp = latestNotifications ? latestNotifications.date : ''
-
+    const [latestNotifications] = allNotifications;
+    const latestTimestamp = latestNotifications ? latestNotifications.date : "";
     const notifObjResponse = await client.get(
       `${notificationsApiRoute}?since=${latestTimestamp}`
-    )
-    return notifObjResponse.notifications
+    );
+    return notifObjResponse.notifications;
   }
-)
+);
 
 const notificationAdapter = createEntityAdapter({
   sortComparer: (a, b) => b.date.localeCompare(a.date),
-})
+});
 
 const initialState = notificationAdapter.getInitialState({
   //notificationItems:[],
   status: StatusData.idle,
   error: null,
-})
+});
 
 const notificationsSlice = createSlice({
   name: notificationsName,
   initialState,
   reducers: {
     allNotificationsRead(state, action) {
-      //console.log('allNotificationsRead dispatched', state.entities)
-
       Object.values(state.entities).forEach((notif) => {
-        //console.log('object values state.entities notif ', notif);
-        notif.read = true
-      })
+        notif.read = true;
+      });
     },
   },
   extraReducers: {
     //computed property
     [fetchNotifications.fulfilled]: (state, action) => {
-      console.log(
-        'notificationsSlice extra reducers fetchNotifications.fulfilled state and action',
-        state,
-        action
-      )
-
       // if we read notification it becomes not new
       // object values returns an array of object property values
       Object.values(state.entities).forEach((notif) => {
-        notif.isNew = !notif.read
-      })
+        notif.isNew = !notif.read;
+      });
 
-      state.status = StatusData.succeeded
+      state.status = StatusData.succeeded;
 
       // state.notificationItems =
       // 	state.notificationItems.concat(...action.payload);
 
-      notificationAdapter.upsertMany(state, action.payload)
+      notificationAdapter.upsertMany(state, action.payload);
 
       //sort newest notifications (mutates the existing array)
       // state.notificationItems.sort((a,b)=>{
@@ -100,21 +81,14 @@ const notificationsSlice = createSlice({
       // })
     },
   },
-})
+});
 
-export default notificationsSlice.reducer
+export default notificationsSlice.reducer;
 
-export const { allNotificationsRead } = notificationsSlice.actions
+export const { allNotificationsRead } = notificationsSlice.actions;
 
-// export const selectAllNotifications = (state) => {
-
-// 	// console.log('selectAllNotifications state', state);
-// 	return state.notifications.notificationItems
-// };
-
-export const {
-  selectAll: selectAllNotifications,
-} = notificationAdapter.getSelectors((state) => state.notifications)
+export const { selectAll: selectAllNotifications } =
+  notificationAdapter.getSelectors((state) => state.notifications);
 
 //it is possible to dispatch an action and not have any state
 // changes happen at all

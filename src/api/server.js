@@ -8,18 +8,18 @@ import {
   hasMany,
   association,
   RestSerializer,
-} from 'miragejs'
+} from "miragejs";
 
-import { nanoid } from '@reduxjs/toolkit'
+import { nanoid } from "@reduxjs/toolkit";
 
-import faker from 'faker'
-import { sentence, paragraph, article, setRandom } from 'txtgen'
-import { parseISO } from 'date-fns'
-import seedrandom from 'seedrandom'
+import faker from "faker";
+import { sentence, paragraph, article, setRandom } from "txtgen";
+import { parseISO } from "date-fns";
+import seedrandom from "seedrandom";
 
 const IdSerializer = RestSerializer.extend({
-  serializeIds: 'always',
-})
+  serializeIds: "always",
+});
 
 // Set up a seeded random number generator, so that we get
 // a consistent set of users / entries each time the page loads.
@@ -29,143 +29,136 @@ const IdSerializer = RestSerializer.extend({
 let usersData = [
   {
     id: nanoid(),
-    name: 'Stephanie',
+    name: "Stephanie",
     isOnline: true,
-    img: 'https://randomuser.me/api/portraits/med/women/5.jpg',
+    img: "https://randomuser.me/api/portraits/med/women/5.jpg",
   },
   {
     id: nanoid(),
-    name: 'Julie',
+    name: "Julie",
     isOnline: true,
-    img: 'https://randomuser.me/api/portraits/med/women/6.jpg',
+    img: "https://randomuser.me/api/portraits/med/women/6.jpg",
   },
   {
     id: nanoid(),
-    name: 'Terrence ',
+    name: "Terrence ",
     isOnline: true,
-    img: 'https://randomuser.me/api/portraits/med/women/7.jpg',
+    img: "https://randomuser.me/api/portraits/med/women/7.jpg",
   },
   {
     id: nanoid(),
-    name: 'Bradley ',
+    name: "Bradley ",
     isOnline: false,
-    img: 'https://randomuser.me/api/portraits/med/men/5.jpg',
+    img: "https://randomuser.me/api/portraits/med/men/5.jpg",
   },
   {
     id: nanoid(),
-    name: 'Regina ',
+    name: "Regina ",
     isOnline: true,
-    img: 'https://randomuser.me/api/portraits/med/women/8.jpg',
+    img: "https://randomuser.me/api/portraits/med/women/8.jpg",
   },
   {
     id: nanoid(),
-    name: 'Dana ',
+    name: "Dana ",
     isOnline: false,
-    img: 'https://randomuser.me/api/portraits/med/women/9.jpg',
+    img: "https://randomuser.me/api/portraits/med/women/9.jpg",
   },
-]
+];
 
-let useSeededRNG = false
+let useSeededRNG = false;
 
-let rng = seedrandom()
+let rng = seedrandom();
 
 if (useSeededRNG) {
-  let randomSeedString = localStorage.getItem('randomTimestampSeed')
-  let seedDate
+  let randomSeedString = localStorage.getItem("randomTimestampSeed");
+  let seedDate;
 
   if (randomSeedString) {
-    seedDate = new Date(randomSeedString)
+    seedDate = new Date(randomSeedString);
   } else {
-    seedDate = new Date()
-    randomSeedString = seedDate.toISOString()
-    localStorage.setItem('randomTimestampSeed', randomSeedString)
+    seedDate = new Date();
+    randomSeedString = seedDate.toISOString();
+    localStorage.setItem("randomTimestampSeed", randomSeedString);
   }
 
-  rng = seedrandom(randomSeedString)
-  setRandom(rng)
-  faker.seed(seedDate.getTime())
+  rng = seedrandom(randomSeedString);
+  setRandom(rng);
+  faker.seed(seedDate.getTime());
 }
 
 function getRandomInt(min, max) {
-  min = Math.ceil(min)
-  max = Math.floor(max)
-  return Math.floor(rng() * (max - min + 1)) + min
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(rng() * (max - min + 1)) + min;
 }
 
 const randomFromArray = (array) => {
-  const index = getRandomInt(0, array.length - 1)
-  return array[index]
-}
+  const index = getRandomInt(0, array.length - 1);
+  return array[index];
+};
 
 const notificationTemplates = [
-  'poked you',
-  'says hi!',
+  "poked you",
+  "says hi!",
   `is glad we're friends`,
-  'sent you a gift',
-]
+  "sent you a gift",
+];
 
 new Server({
   routes() {
-    this.namespace = 'fakeApi'
+    this.namespace = "fakeApi";
 
     // this.timing = 2000
 
-    this.resource('users')
-    this.resource('posts')
-    this.resource('comments')
+    this.resource("users");
+    this.resource("posts");
+    this.resource("comments");
 
-    const server = this
+    const server = this;
 
-    this.post('/posts', function (schema, req) {
-      console.log(' Server this.post (/posts) ')
-
-      const data = this.normalizedRequestAttrs()
-      data.date = new Date().toISOString()
+    this.post("/posts", function (schema, req) {
+      const data = this.normalizedRequestAttrs();
+      data.date = new Date().toISOString();
 
       // Work around some odd behavior by Mirage that's causing an extra
       // user entry to be created unexpectedly when we only supply a userId.
       // It really want an entire Model passed in as data.user for some reason.
-      const user = schema.users.find(data.userId)
-      data.user = user
+      const user = schema.users.find(data.userId);
+      data.user = user;
 
-      if (data.content === 'error') {
-        throw new Error('Could not save the post!')
+      if (data.content === "error") {
+        throw new Error("Could not save the post!");
       }
 
-      const result = server.create('post', data)
-      return result
-    })
+      const result = server.create("post", data);
+      return result;
+    });
 
-    this.get('/posts/:postId/comments', (schema, req) => {
-      console.log(`Server /posts/:postId/comments `)
+    this.get("/posts/:postId/comments", (schema, req) => {
+      const postId = req.params.postId;
+      const post = schema.posts.find(postId);
+      return post.comments;
+    });
 
-      const postId = req.params.postId
-      console.log('server get postId ', postId)
-      const post = schema.posts.find(postId)
-      return post.comments
-    })
+    this.get("/notifications", (schema, req) => {
+      const numNotifications = getRandomInt(1, 5);
 
-    this.get('/notifications', (schema, req) => {
-      console.log(`Server /notifications `)
+      let pastDate;
 
-      const numNotifications = getRandomInt(1, 5)
-
-      let pastDate
-
-      const now = new Date()
+      const now = new Date();
 
       if (req.queryParams.since) {
-        pastDate = parseISO(req.queryParams.since)
+        pastDate = parseISO(req.queryParams.since);
       } else {
-        pastDate = new Date(now.valueOf())
-        pastDate.setMinutes(pastDate.getMinutes() - 15)
+        pastDate = new Date(now.valueOf());
+        pastDate.setMinutes(pastDate.getMinutes() - 15);
       }
 
       // Create N random notifications. We won't bother saving these
       // in the DB - just generate a new batch and return them.
       const notifications = [...Array(numNotifications)].map(() => {
-        const user = randomFromArray(schema.db.users)
-        const template = randomFromArray(notificationTemplates)
+        const user = randomFromArray(schema.db.users);
+        const template = randomFromArray(notificationTemplates);
         return {
           id: nanoid(),
           date: faker.date.between(pastDate, now).toISOString(),
@@ -173,11 +166,11 @@ new Server({
           user: user.id,
           read: false,
           isNew: true,
-        }
-      })
+        };
+      });
 
-      return { notifications }
-    })
+      return { notifications };
+    });
   },
 
   models: {
@@ -196,37 +189,37 @@ new Server({
   factories: {
     user: Factory.extend({
       id() {
-        return nanoid()
+        return nanoid();
       },
       firstName() {
-        return faker.name.firstName()
+        return faker.name.firstName();
       },
       lastName() {
-        return faker.name.lastName()
+        return faker.name.lastName();
       },
       name() {
-        return faker.name.findName(this.firstName, this.lastName)
+        return faker.name.findName(this.firstName, this.lastName);
       },
       username() {
-        return faker.internet.userName(this.firstName, this.lastName)
+        return faker.internet.userName(this.firstName, this.lastName);
       },
 
       afterCreate(user, server) {
-        server.createList('post', 3, { user })
+        server.createList("post", 3, { user });
       },
     }),
     post: Factory.extend({
       id() {
-        return nanoid()
+        return nanoid();
       },
       title() {
-        return sentence()
+        return sentence();
       },
       date() {
-        return faker.date.recent(7)
+        return faker.date.recent(7);
       },
       content() {
-        return article(1)
+        return article(1);
       },
       reactions() {
         return {
@@ -235,10 +228,10 @@ new Server({
           heart: 0,
           rocket: 0,
           eyes: 0,
-        }
+        };
       },
       afterCreate(post, server) {
-        server.createList('comment', 3, { post })
+        server.createList("comment", 3, { post });
       },
 
       user: association(),
@@ -246,13 +239,13 @@ new Server({
 
     comment: Factory.extend({
       id() {
-        return nanoid()
+        return nanoid();
       },
       date() {
-        return faker.date.past(2)
+        return faker.date.past(2);
       },
       text() {
-        return paragraph()
+        return paragraph();
       },
       post: association(),
     }),
@@ -263,12 +256,12 @@ new Server({
     comment: IdSerializer,
   },
   seeds(server) {
-    server.createList('user', 3)
-    server.create('user', { img: usersData[0].img })
-    server.create('user', { img: usersData[1].img })
-    server.create('user', { img: usersData[2].img })
-    server.create('user', { img: usersData[3].img })
-    server.create('user', { img: usersData[4].img })
-    server.create('user', { img: usersData[5].img })
+    server.createList("user", 3);
+    server.create("user", { img: usersData[0].img });
+    server.create("user", { img: usersData[1].img });
+    server.create("user", { img: usersData[2].img });
+    server.create("user", { img: usersData[3].img });
+    server.create("user", { img: usersData[4].img });
+    server.create("user", { img: usersData[5].img });
   },
-})
+});

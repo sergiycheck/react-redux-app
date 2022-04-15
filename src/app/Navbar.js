@@ -1,34 +1,35 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { allUsersRoute } from '../features/ApiRoutes'
-import { useDispatch, useSelector } from 'react-redux'
+import React from "react";
+import { Link } from "react-router-dom";
+import { allUsersRoute } from "../api/ApiRoutes";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
   fetchNotifications,
   selectAllNotifications,
-} from '../features/notifications/notificationsSlice'
-import { notificationsRoute } from '../features/ApiRoutes'
+} from "../features/notifications/notificationsSlice";
+import { notificationsRoute } from "../api/ApiRoutes";
 
 export const Navbar = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const fetchNewNotifications = () => {
-    dispatch(fetchNotifications())
-  }
+    dispatch(fetchNotifications());
+  };
 
-  const allNotifications = useSelector((state) => selectAllNotifications(state))
+  const allNotifications = useSelector((state) =>
+    selectAllNotifications(state)
+  );
 
   let numUnreadNotifications = allNotifications.filter(
     (n) => n.read === false
-  ).length
-  console.log(numUnreadNotifications)
+  ).length;
 
-  let unreadNotificationBadge
+  let unreadNotificationBadge;
   //hide badge if there is no new notifications
   if (numUnreadNotifications > 0) {
     unreadNotificationBadge = (
       <span className="badge bg-dark">{numUnreadNotifications}</span>
-    )
+    );
   }
 
   return (
@@ -49,5 +50,5 @@ export const Navbar = () => {
         </div>
       </section>
     </nav>
-  )
-}
+  );
+};

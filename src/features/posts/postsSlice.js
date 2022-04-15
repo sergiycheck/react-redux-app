@@ -1,159 +1,93 @@
 import {
   createSlice,
-  nanoid,
   createAsyncThunk,
   createSelector,
   createEntityAdapter,
-} from '@reduxjs/toolkit'
+} from "@reduxjs/toolkit";
 
-import { sub } from 'date-fns'
-import { client } from '../../api/client'
+import { client } from "../../api/client";
 
 import {
   postsRoute,
-  postsName,
   StatusData,
   getAllPostsPrefix,
   addPostPrefix,
-} from '../ApiRoutes'
-
-// const postsData = [
-// 	{
-// 		id:nanoid(),
-// 		date:sub(new Date(),{minutes:62}).toISOString(),
-// 		reactions: {
-//       thumbsUp: 0,
-//       hooray: 0,
-//       heart: 0,
-//       rocket: 0,
-//       eyes: 0,
-//     },
-// 		title:'first title',content:'first content'
-// 	},
-// 	{
-// 		id:nanoid(),
-// 		date:sub(new Date(),{minutes:17}).toISOString(),
-// 		reactions: {
-//       thumbsUp: 0,
-//       hooray: 0,
-//       heart: 0,
-//       rocket: 0,
-//       eyes: 0,
-//     },
-// 		title:'second title',content:'second content'
-// 	},
-// ]
+} from "../../api/ApiRoutes";
 
 //sorts our posts
 const postsAdapter = createEntityAdapter({
   sortComparer: (a, b) => b.date.localeCompare(a.date),
-})
+});
 
 // getInitialState returns an empty {ids:[], entities:{}} normalized state object
 const initialState = postsAdapter.getInitialState({
   //
   status: StatusData.idle,
   error: null,
-})
+});
 
 //redux toolkit's createAsyncThunk API generates thunks
 //that automaticaly dispatches those start/success/failure actions
 
 export const fetchPosts = createAsyncThunk(getAllPostsPrefix, async () => {
-  console.log('route ', postsRoute)
+  const response = await client.get(postsRoute);
+  const posts = response.posts;
 
-  const response = await client.get(postsRoute)
-  console.log('got response', response)
-  const posts = response.posts
-  console.log(
-    'every post has user',
-    posts.every((p) => p.user)
-  )
-  return posts
-})
+  return posts;
+});
 
 export const fetchPostComments = createAsyncThunk(
-  'post/:id/comments',
+  "post/:id/comments",
   async (postId) => {
-    console.log('fetchPostComments postId', postId)
     const responseComments = await client.get(
       `${postsRoute}/${postId}/comments`
-    )
-    console.log('got response', responseComments)
-    return responseComments
+    );
+    return responseComments;
   }
-)
+);
 
 //initialPost { title, content, user: userId }
 export const addNewPost = createAsyncThunk(
   addPostPrefix,
   async (initialPost) => {
-    const response = await client.post(postsRoute, { post: initialPost })
-    console.log('got response', response)
+    const response = await client.post(postsRoute, { post: initialPost });
     //Response includes the complete post obj with ID
-    return response.post
+    return response.post;
   }
-)
+);
 
 //posts are being kept in a lookup table state.entities
 const postsSlice = createSlice({
-  name: 'posts', // array of postItems
+  name: "posts", // array of postItems
   initialState,
 
   reducers: {
-    /*
-    postAdded: {
-
-      reducer(state, action) {
-        state.postItems.push(action.payload)
-      },
-
-      prepare(title, content,userId) {
-        return {
-          payload: {
-            id: nanoid(),
-            title,
-						date:new Date().toISOString(),
-            content,
-						reactions: {
-              thumbsUp: 0,
-              hooray: 0,
-              heart: 0,
-              rocket: 0,
-              eyes: 0,
-            },
-						userId:userId
-          }
-        }
-      }
-    },*/
-
     //createSlice lets us write "mutating" logic in our reducers.
     reactionAdded(state, action) {
-      const { postId, reaction } = action.payload
+      const { postId, reaction } = action.payload;
       //
-      const existingPost = state.entities[postId]
+      const existingPost = state.entities[postId];
 
       if (existingPost) {
-        existingPost.reactions[reaction]++
+        existingPost.reactions[reaction]++;
       }
     },
 
     postDeleted(state, action) {
-      const { postId } = action.payload
+      const { postId } = action.payload;
       //
-      const existingPost = state.entities[postId]
+      const existingPost = state.entities[postId];
       if (existingPost) {
-        state.entities.pop(existingPost)
+        state.entities.pop(existingPost);
       }
     },
     postUpdated(state, action) {
-      const { id, title, content } = action.payload
+      const { id, title, content } = action.payload;
       //
-      const existingPost = state.entities[id]
+      const existingPost = state.entities[id];
       if (existingPost) {
-        existingPost.title = title
-        existingPost.content = content
+        existingPost.title = title;
+        existingPost.content = content;
       }
     },
   },
@@ -167,32 +101,32 @@ const postsSlice = createSlice({
   //types will become the keys of the object:
   extraReducers: {
     [fetchPosts.pending]: (state, action) => {
-      state.status = StatusData.loading
+      state.status = StatusData.loading;
     },
     [fetchPosts.fulfilled]: (state, action) => {
-      state.status = StatusData.succeeded
+      state.status = StatusData.succeeded;
       // state.postItems = state.postItems.concat(action.payload)
 
       //Use the `upsertMany` reducer as a mutating update utility
       //upsertMany merges action.payload posts on id if the same posts
       // already existing in state
-      postsAdapter.upsertMany(state, action.payload)
+      postsAdapter.upsertMany(state, action.payload);
     },
     [fetchPosts.rejected]: (state, action) => {
-      state.status = StatusData.failed
-      state.error = action.error.message
+      state.status = StatusData.failed;
+      state.error = action.error.message;
     },
 
     [addNewPost.fulfilled]: (state, action) => {
       // state.postItems.push(action.payload);
-      postsAdapter.addOne(state, action.payload)
+      postsAdapter.addOne(state, action.payload);
     },
   },
-})
+});
 export const { postAdded, postUpdated, reactionAdded, postDeleted } =
-  postsSlice.actions
+  postsSlice.actions;
 
-export default postsSlice.reducer
+export default postsSlice.reducer;
 
 //Note that the state parameter for these selector
 //functions is the root Redux state object
@@ -211,7 +145,7 @@ export const {
   //high order function ?
   //Pass in a selector that returns the posts slice of state
   //pass state.posts in order to find posts in Redux state
-} = postsAdapter.getSelectors((state) => state.posts)
+} = postsAdapter.getSelectors((state) => state.posts);
 
 // createSelector takes one input selector func
 // plus an output selector func
@@ -224,19 +158,13 @@ export const selectPostsByUser = createSelector(
   [
     selectAllPosts,
     (state, userId) => {
-      console.log('calling selectPostsByUser input selector. UserId: ', userId)
-      return userId
+      return userId;
     },
   ],
   (posts, userId) => {
-    console.log(
-      'calling selectPostsByUser second output selector. UserId: ',
-      userId
-    )
-    console.log('posts ', [posts])
-    return posts.filter((post) => post.user === userId)
+    return posts.filter((post) => post.user === userId);
   }
-)
+);
 
 //YOu can write reusable 'selector' function to encapsulate reading values from Redux state
 //selectors are funcs that get Redux state as arg and return some data

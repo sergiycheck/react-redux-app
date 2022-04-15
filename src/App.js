@@ -1,27 +1,27 @@
-import React from 'react'
+import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
   Redirect,
-} from 'react-router-dom'
+} from "react-router-dom";
 
-import { Navbar } from './app/Navbar'
-import { PostsList } from './features/posts/PostsList'
-import { AddPostForm } from './features/posts/AddPostForm'
-import { SinglePost } from './features/posts/SinglePostPage'
-import { EditPostForm } from './features/posts/EditPostForm'
+import { Navbar } from "./app/Navbar";
+import { PostsList } from "./features/posts/PostsList";
+import { AddPostForm } from "./features/posts/AddPostForm";
+import { SinglePost } from "./features/posts/SinglePostPage";
+import { EditPostForm } from "./features/posts/EditPostForm";
 import {
   singlePostRoute,
   editPostRoute,
   allUsersRoute,
   singleUserPageRoute,
   notificationsRoute,
-} from '../src/features/ApiRoutes'
+} from "./api/ApiRoutes";
 
-import { UsersList } from './features/users/UserList'
-import { SingleUserPage } from './features/users/SingleUserPage'
-import { NotificationList } from './features/notifications/NotificationList'
+import { UsersList } from "./features/users/UserList";
+import { SingleUserPage } from "./features/users/SingleUserPage";
+import { NotificationList } from "./features/notifications/NotificationList";
 
 function App() {
   return (
@@ -70,7 +70,7 @@ function App() {
         </Switch>
       </div>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
