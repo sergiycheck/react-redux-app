@@ -1,28 +1,29 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { allUsersRoute } from "../api/ApiRoutes";
-import { useDispatch, useSelector } from "react-redux";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { allUsersRoute } from '../api/ApiRoutes';
+import { useDispatch, useSelector } from 'react-redux';
 
 import {
-  fetchNotifications,
-  selectAllNotifications,
-} from "../features/notifications/notificationsSlice";
-import { notificationsRoute } from "../api/ApiRoutes";
+  fetchNotificationsWebsocket,
+  selectNotificationsMetadata,
+  useGetNotificationsQuery,
+} from '../features/notifications/notificationsSlice';
+import { notificationsRoute } from '../api/ApiRoutes';
 
 export const Navbar = () => {
   const dispatch = useDispatch();
 
-  const fetchNewNotifications = () => {
-    dispatch(fetchNotifications());
-  };
+  // Trigger initial fetch of notifications and keep the websocket open to receive updates
+  useGetNotificationsQuery();
 
-  const allNotifications = useSelector((state) =>
-    selectAllNotifications(state)
-  );
-
-  let numUnreadNotifications = allNotifications.filter(
-    (n) => n.read === false
+  const notificationsMetadata = useSelector(selectNotificationsMetadata);
+  const numUnreadNotifications = notificationsMetadata.filter(
+    (n) => !n.read
   ).length;
+
+  const fetchNewNotifications = () => {
+    dispatch(fetchNotificationsWebsocket());
+  };
 
   let unreadNotificationBadge;
   //hide badge if there is no new notifications

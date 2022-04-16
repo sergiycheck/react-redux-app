@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
-import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { PostAuthor } from './PostAuthor';
 import { TimeAgo } from './TimeAgo';
 import { ReactionButton } from './ReactionButton';
-import { fetchPostComments } from './postsSlice';
 import { singlePostRoute, editPostRoute } from '../../api/ApiRoutes';
-import { useGetPostsQuery } from '../../api/apiSlice';
+import {
+  useGetAddPostCommentsMutation,
+  useGetPostsQuery,
+} from '../../api/apiSlice';
 import { Loader } from './Loader';
 import classnames from 'classnames';
 
@@ -65,10 +66,11 @@ export const PostsList = () => {
 };
 
 export let PostExcerpt = ({ post }) => {
-  const dispatch = useDispatch();
+  const [getAddPostComments, { isLoading, isSuccess, isError }] =
+    useGetAddPostCommentsMutation();
 
-  const getPostComments = async () => {
-    await dispatch(fetchPostComments(post.id));
+  const getPostCommentsHandler = async () => {
+    const result = await getAddPostComments(post.id).unwrap();
   };
 
   return (
@@ -80,17 +82,15 @@ export let PostExcerpt = ({ post }) => {
 
       <p className="post-content">{post.content.substring(0, 100)}</p>
       <Link
-        // to={`/posts/${post.id}`}
         to={singlePostRoute.replace(':postId', `${post.id}`)}
         className="button muted-button"
       >
         view post
       </Link>
-      <button onClick={getPostComments} className="button muted-button">
+      <button onClick={getPostCommentsHandler} className="button muted-button">
         getPostComments
       </button>
       <Link
-        // to={`/editPost/${post.id}`}
         to={editPostRoute.replace(':postId', `${post.id}`)}
         className="button muted-button"
       >
