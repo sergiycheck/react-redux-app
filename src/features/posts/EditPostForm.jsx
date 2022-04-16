@@ -26,7 +26,7 @@ export const EditPostForm = ({ match }) => {
 };
 
 export const EditPost = ({ post }) => {
-  const [updatePost, { isLoading }] = useEditPostMutation();
+  const [updatePost, { isLoading, isSuccess }] = useEditPostMutation();
 
   const [title, setTitle] = useState(post.title);
   const [content, setContent] = useState(post.content);
@@ -42,35 +42,53 @@ export const EditPost = ({ post }) => {
         title: title,
         content: content,
       });
-
-      history.push(`/posts/${post.id}`);
     }
   };
 
+  let postEditingRendered;
+  if (isLoading) {
+    postEditingRendered = <Loader></Loader>;
+  } else if (isSuccess) {
+    postEditingRendered = null;
+    setTimeout(() => {
+      history.push(`/posts/${post.id}`);
+    });
+  }
+
   return (
     <section>
-      <h2>Edit post</h2>
-      <form>
-        <label htmlFor="postTitle">Post Title:</label>
-        <input
-          type="text"
-          id="postTitle"
-          name="postTitle"
-          value={title}
-          onChange={onTitleChanged}
-        />
-        <label htmlFor="postContent">Content:</label>
-        <textarea
-          id="postContent"
-          name="postContent"
-          value={content}
-          rows={9}
-          onChange={onContentChanged}
-        />
-        <button onClick={savePostClicked} type="button">
-          Save Post
-        </button>
-      </form>
+      <div className="row align-items-start">
+        <div className="col-auto position-relative">
+          <h2>Edit post</h2>
+          <div className="position-absolute edit-post-loader">
+            {postEditingRendered}
+          </div>
+        </div>
+      </div>
+
+      <div className="row">
+        <form>
+          <label htmlFor="postTitle">Post Title:</label>
+          <input
+            type="text"
+            id="postTitle"
+            name="postTitle"
+            value={title}
+            onChange={onTitleChanged}
+          />
+          <label htmlFor="postContent">Content:</label>
+          <textarea
+            id="postContent"
+            name="postContent"
+            value={content}
+            rows={9}
+            onChange={onContentChanged}
+          />
+          <button onClick={savePostClicked} type="button">
+            Save Post
+          </button>
+        </form>
+      </div>
     </section>
   );
 };

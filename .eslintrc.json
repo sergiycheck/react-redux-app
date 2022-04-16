@@ -1,0 +1,6 @@
+{
+  "extends": ["plugin:react"]
+  // "rules": {
+  //   "no-unused-vars": ["error", { "ignoreRestSiblings": true }]
+  // }
+}

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useAddNewPostMutation, useGetUsersQuery } from '../../api/apiSlice';
-import { Loader } from './Loader';
+import { useAddNewPostMutation } from '../../api/apiSlice';
+import { selectAllUsers } from '../users/usersSlice';
+import { useSelector } from 'react-redux';
 
 export const AddPostForm = () => {
   const [title, setTitle] = useState('');
@@ -8,12 +9,7 @@ export const AddPostForm = () => {
   const [userId, setUserId] = useState('');
 
   const [addNewPost, { isLoading }] = useAddNewPostMutation();
-  // const users = useSelector((state) => selectAllUsers(state));
-  const {
-    data: users,
-    isLoading: isLoadingUsers,
-    isSuccess: isUsersLoadedSuccess,
-  } = useGetUsersQuery();
+  const users = useSelector((state) => selectAllUsers(state));
 
   const onTitleChanged = (e) => setTitle(e.target.value);
   const onContentChanged = (e) => setContent(e.target.value);
@@ -39,28 +35,23 @@ export const AddPostForm = () => {
     }
   };
 
-  let usersRenderedContent;
-  if (isLoadingUsers) {
-    usersRenderedContent = <Loader></Loader>;
-  } else if (isUsersLoadedSuccess) {
-    const userOptions = users.map((user) => (
-      <option key={user.id} value={user.id}>
-        {user.name}
-      </option>
-    ));
+  const userOptions = users.map((user) => (
+    <option key={user.id} value={user.id}>
+      {user.name}
+    </option>
+  ));
 
-    usersRenderedContent = (
-      <select
-        value={userId}
-        onChange={onAuthorChanged}
-        name="postAuthor"
-        id="postAuthor"
-      >
-        <option value=""></option>
-        {userOptions}
-      </select>
-    );
-  }
+  const usersRenderedContent = (
+    <select
+      value={userId}
+      onChange={onAuthorChanged}
+      name="postAuthor"
+      id="postAuthor"
+    >
+      <option value=""></option>
+      {userOptions}
+    </select>
+  );
 
   return (
     <section className="sticky-sm-top">
